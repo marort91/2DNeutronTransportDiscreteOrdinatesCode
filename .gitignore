@@ -5,3 +5,6 @@
 *.synctex.gz
 *.tex
 *.m~
+*.bbl
+*.blg
+*.sty
