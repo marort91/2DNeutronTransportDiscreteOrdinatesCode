@@ -12,19 +12,24 @@ siga = sigt - sigs0;
 xL = 0; xR = 1;
 yB = 0; yT = 1;
 
-Nx = 10; Ny = 10;
-Nang = 16;
+Nx = 2; Ny = 2;
+Nang = 4;
 
 [mu,eta,wi] = level_sym_table(Nang);
 
-dx = (xR - xL)/Nx;
-dy = (yT - yB)/Ny;
+dx = (xR - xL)/(Nx+1);
+dy = (yT - yB)/(Ny+1);
+
+x = xL+dx:dx:xR-dx;
+y = yB+dy:dy:yT-dx;
+
+[Xarr,Yarr] = meshgrid(x,y);
 
 %% Generation of Angular Flux Array
 angular_flux = zeros(Nx,Ny,Nang*(Nang+2)/2);
 
 %% Source Generation
-S = 1.*ones(Nx,Ny);
+S = 0.*ones(Nx,Ny);
 Q = zeros(Nx,Ny);
 
 %% Calculation Parameters
@@ -55,12 +60,14 @@ for iter = 1:maxiter
     
     Q = ( S + sigs0.*scalar_flux );
     
-    for l = 1:Nang*(Nang+2)/2
+    for l = 1:1 %Nang*(Nang+2)/2
         
         if ( bc == 1 )
         
             angular_flux_half_x = zeros(Nx,Nx+1);
+            angular_flux_half_x(:,1) = 1;
             angular_flux_half_y = zeros(Ny+1,Ny);
+            angular_flux_half_y(1,:) = 1;
             
         end
         
@@ -181,3 +188,11 @@ for iter = 1:maxiter
     end
        
 end
+
+f = @(x,y) exp(-sigt*min(x/mu(1),y/eta(1)));
+
+figure(1)
+surf(x,y,f(Xarr,Yarr))
+
+figure(2)
+surf(x,y,angular_flux(:,:,1))
