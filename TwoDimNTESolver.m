@@ -12,16 +12,16 @@ siga = sigt - sigs0;
 xL = 0; xR = 1;
 yB = 0; yT = 1;
 
-Nx = 2; Ny = 2;
+Nx = 100; Ny = 100;
 Nang = 4;
 
 [mu,eta,wi] = level_sym_table(Nang);
 
-dx = (xR - xL)/(Nx+1);
-dy = (yT - yB)/(Ny+1);
+dx = (xR - xL)/(Nx);
+dy = (yT - yB)/(Ny);
 
-x = xL+dx:dx:xR-dx;
-y = yB+dy:dy:yT-dx;
+x = xL+dx/2:dx:xR-dx/2;
+y = yB+dy/2:dy:yT-dy/2;
 
 [Xarr,Yarr] = meshgrid(x,y);
 
@@ -60,9 +60,11 @@ for iter = 1:maxiter
     
     Q = ( S + sigs0.*scalar_flux );
     
-    for l = 1:1 %Nang*(Nang+2)/2
+    for l = 1:Nang*(Nang+2)/2
         
-        if ( bc == 1 )
+        %if ( bc == 1 )
+        
+        if ( l == 1 || l == 2 || l == 3 )
         
             angular_flux_half_x = zeros(Nx,Nx+1);
             angular_flux_half_x(:,1) = 1;
@@ -189,10 +191,15 @@ for iter = 1:maxiter
        
 end
 
-f = @(x,y) exp(-sigt*min(x/mu(1),y/eta(1)));
+int = 2;
+
+f = @(x,y) exp(-sigt.*min(x./mu(int),y./eta(int)));
+Z = f(Xarr,Yarr);
 
 figure(1)
-surf(x,y,f(Xarr,Yarr))
+mesh(x,y,Z);
 
 figure(2)
-surf(x,y,angular_flux(:,:,1))
+mesh(x,y,angular_flux(:,:,1));
+
+max(max(abs(Z-angular_flux(:,:,1))))
