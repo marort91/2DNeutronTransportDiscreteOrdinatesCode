@@ -13,7 +13,7 @@ xL = 0; xR = 1;
 yB = 0; yT = 1;
 
 Nx = 100; Ny = 100;
-Nang = 4;
+Nang = 2;
 
 [mu,eta,wi] = level_sym_table(Nang);
 
@@ -79,17 +79,17 @@ for iter = 1:maxiter
                 
                 for i = 1:Nx
                     
-                    angular_flux(i,j,l) = ( 2*mu(l)*angular_flux_half_x(j,i)/dx + ...
+                    angular_flux(j,i,l) = ( 2*mu(l)*angular_flux_half_x(j,i)/dx + ...
                         2*eta(l)*angular_flux_half_y(j,i)/dy + Q(i,j) )/...
                         ( 2*mu(l)/dx + 2*eta(l)/dy + sigt );
                     
-                    angular_flux_half_x(j,i+1) = 2*angular_flux(i,j,l) - angular_flux_half_x(j,i);
+                    angular_flux_half_x(j,i+1) = 2*angular_flux(j,i,l) - angular_flux_half_x(j,i);
                     
                 end
                 
                 for m = 1:Nx
                     
-                    angular_flux_half_y(j+1,m) = 2*angular_flux(m,j,l) - angular_flux_half_y(j,m);
+                    angular_flux_half_y(j+1,m) = 2*angular_flux(j,m,l) - angular_flux_half_y(j,m);
                     
                 end
                 
@@ -101,17 +101,17 @@ for iter = 1:maxiter
                 
                 for i = Nx:-1:1
             
-                    angular_flux(i,j,l) = ( -2*mu(l)*angular_flux_half_x(j,i+1)/dx + ...
+                    angular_flux(j,i,l) = ( -2*mu(l)*angular_flux_half_x(j,i+1)/dx + ...
                         2*eta(l)*angular_flux_half_y(j,i)/dy + Q(i,j) )/...
                         ( -2*mu(l)/dx + 2*eta(l)/dy + sigt );
                     
-                    angular_flux_half_x(j,i) = 2*angular_flux(i,j,l) - angular_flux_half_x(j,i+1);
+                    angular_flux_half_x(j,i) = 2*angular_flux(j,i,l) - angular_flux_half_x(j,i+1);
                     
                 end
                 
                 for m = Nx:-1:1
                     
-                    angular_flux_half_y(j+1,m) = 2*angular_flux(m,j,l) - angular_flux_half_y(j,m);
+                    angular_flux_half_y(j+1,m) = 2*angular_flux(j,m,l) - angular_flux_half_y(j,m);
                     
                 end
                 
@@ -123,17 +123,17 @@ for iter = 1:maxiter
                 
                 for i = 1:Nx
                     
-                    angular_flux(i,j,l) = ( 2*mu(l)*angular_flux_half_x(j,i)/dx - ...
+                    angular_flux(j,i,l) = ( 2*mu(l)*angular_flux_half_x(j,i)/dx - ...
                         2*eta(l)*angular_flux_half_y(j+1,i)/dy + Q(i,j) )/...
                         ( 2*mu(l)/dx - 2*eta(l)/dy + sigt );
                     
-                    angular_flux_half_x(j,i+1) = 2*angular_flux(i,j,l) - angular_flux_half_x(j,i);
+                    angular_flux_half_x(j,i+1) = 2*angular_flux(j,i,l) - angular_flux_half_x(j,i);
                     
                 end
                 
                 for m = 1:Nx
                     
-                    angular_flux_half_y(j,m) = 2*angular_flux(m,j,l) - angular_flux_half_y(j+1,m);
+                    angular_flux_half_y(j,m) = 2*angular_flux(j,m,l) - angular_flux_half_y(j+1,m);
                     
                 end
                 
@@ -145,17 +145,17 @@ for iter = 1:maxiter
                 
                 for i = Nx:-1:1
                     
-                    angular_flux(i,j,l) = ( -2*mu(l)*angular_flux_half_x(j,i+1)/dx - ...
+                    angular_flux(j,i,l) = ( -2*mu(l)*angular_flux_half_x(j,i+1)/dx - ...
                         2*eta(l)*angular_flux_half_y(j+1,i)/dy + Q(i,j) )/...
                         ( -2*mu(l)/dx - 2*eta(l)/dy + sigt );
                     
-                    angular_flux_half_x(j,i) = 2*angular_flux(i,j,l) - angular_flux_half_x(j,i+1);
+                    angular_flux_half_x(j,i) = 2*angular_flux(j,i,l) - angular_flux_half_x(j,i+1);
                     
                 end
                 
                 for m = 1:Nx
                     
-                    angular_flux_half_y(j,m) = 2*angular_flux(m,j,l) - angular_flux_half_y(j+1,m);
+                    angular_flux_half_y(j,m) = 2*angular_flux(j,m,l) - angular_flux_half_y(j+1,m);
                     
                 end
                 
@@ -200,6 +200,6 @@ figure(1)
 mesh(x,y,Z);
 
 figure(2)
-mesh(x,y,angular_flux(:,:,int)');
+mesh(x,y,angular_flux(:,:,int));
 
-max(max(abs(Z-angular_flux(:,:,int)')))
+max(max(abs(Z-angular_flux(:,:,int))))
