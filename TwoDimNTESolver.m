@@ -191,15 +191,15 @@ for iter = 1:maxiter
        
 end
 
-int = 2;
+int = 1;
 
-f = @(x,y) exp(-sigt.*min(x./mu(int),y./eta(int)));
+f = @(x,y) exp(-sigt*min(x/mu(int),y/eta(int)));
 Z = f(Xarr,Yarr);
 
 figure(1)
 mesh(x,y,Z);
 
 figure(2)
-mesh(x,y,angular_flux(:,:,1));
+mesh(x,y,angular_flux(:,:,int)');
 
-max(max(abs(Z-angular_flux(:,:,1))))
+max(max(abs(Z-angular_flux(:,:,int)')))
