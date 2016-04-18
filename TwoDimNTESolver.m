@@ -211,5 +211,3 @@ figure(2)
 mesh(x,y,angular_flux(:,:,int));
 
 max(max(abs(Z-angular_flux(:,:,int))))
-
-surf(x,y,scalar_flux)
