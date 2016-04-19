@@ -5,15 +5,15 @@ clc, clear, clf, close all
 
 %% Material Properies
 sigt = 1.0;
-sigs0 = 0.0;
+sigs0 = 0.99999;
 siga = sigt - sigs0;
 
 %% Geometry and Angular Discretization
 xL = 0; xR = 1;
 yB = 0; yT = 1;
 
-Nx = 100; Ny = 100;
-Nang = 8;
+Nx = 1000; Ny = 1000;
+Nang = 16;
 
 [mu,eta,wi] = level_sym_table(Nang);
 
@@ -37,7 +37,7 @@ maxiter = 1e3; %Maximum number of sweeps allowed
 tol = 1e-8;
 
 %% Boundary Conditions
-bc = 1;
+bc = 3;
 %bc = 'Larsen2D-Benchmark';
 
 if ( bc == 1 )
@@ -119,6 +119,14 @@ for iter = 1:maxiter
             
         elseif ( mu(l) < 0 && eta(l) > 0 )
             
+            if ( bc == 3 )
+                
+                loc = find ( mu(l) == -mu & eta(l) == eta );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                
+            end
+            
             for j = 1:Ny
                 
                 for i = Nx:-1:1
@@ -141,6 +149,14 @@ for iter = 1:maxiter
                     
         elseif ( mu(l) > 0 && eta(l) < 0 )
             
+            if ( bc == 3 )
+                
+                loc = find( eta(l) == -eta & mu(l) == mu );
+                
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
+                
+            end
+            
             for j = Ny:-1:1
                 
                 for i = 1:Nx
@@ -162,6 +178,15 @@ for iter = 1:maxiter
             end
             
         elseif ( mu(l) < 0 && eta(l) < 0 )
+            
+            if ( bc == 3 )
+                
+                loc = find ( mu(l) == -mu & eta(l) == -eta );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
+                
+            end
             
             for j = Ny:-1:1
                 
