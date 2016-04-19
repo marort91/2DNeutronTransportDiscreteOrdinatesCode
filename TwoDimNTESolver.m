@@ -5,14 +5,14 @@ clc, clear, clf, close all
 
 %% Material Properies
 sigt = 1.0;
-sigs0 = 0.99999;
+sigs0 = 0.0;
 siga = sigt - sigs0;
 
 %% Geometry and Angular Discretization
 xL = 0; xR = 1;
 yB = 0; yT = 1;
 
-Nx = 1000; Ny = 1000;
+Nx = 10; Ny = 10;
 Nang = 16;
 
 [mu,eta,wi] = level_sym_table(Nang);
@@ -33,11 +33,11 @@ S = 1.*ones(Nx,Ny);
 Q = zeros(Nx,Ny);
 
 %% Calculation Parameters
-maxiter = 1e3; %Maximum number of sweeps allowed
+maxiter = 1e5; %Maximum number of sweeps allowed
 tol = 1e-8;
 
 %% Boundary Conditions
-bc = 3;
+bc = 1;
 %bc = 'Larsen2D-Benchmark';
 
 if ( bc == 1 )
@@ -52,6 +52,10 @@ elseif ( bc == 3 )
     
     fprintf('Reflective boundary conditions on right and top boundaries \n');
     
+elseif ( bc == 4 )
+    
+    fprintf('Reflective boundary conditions on all boundaries \n');
+    
 end
 
 %% Code Parameters to be Printed to Terminal
@@ -59,6 +63,10 @@ fprintf('S%i calculation with scattering cross section = %f \n',Nang,sigs0);
 fprintf('Maximum number of iterations: %i \n',maxiter);
 fprintf('Scalar flux two-norm tolerance: %e \n',tol);
 fprintf('\n');
+
+%% Initialization of Angular Flux Evaluated at Half-Points Arrays
+angular_flux_half_x = zeros(Nx,Nx+1,Nang*(Nang+2)/2);
+angular_flux_half_y = zeros(Ny+1,Ny,Nang*(Nang+2)/2);
 
 %% Transport Sweep
 for iter = 1:maxiter
@@ -87,6 +95,8 @@ for iter = 1:maxiter
         angular_flux_half_x = zeros(Nx,Nx+1,Nang*(Nang+2)/2);
         angular_flux_half_y = zeros(Ny+1,Ny,Nang*(Nang+2)/2);
                 
+    elseif ( bc == 4 )
+        
     else
                 
         error('No boundary condition implemented');
@@ -96,6 +106,15 @@ for iter = 1:maxiter
     for l = 1:Nang*(Nang+2)/2
         
         if ( mu(l) > 0 && eta(l) > 0 )
+            
+            if ( bc == 4 )
+                
+                loc = find ( mu(l) == -mu & eta(l) == -eta );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
+                
+            end
             
             for j = 1:Ny
                 
@@ -124,6 +143,13 @@ for iter = 1:maxiter
                 loc = find ( mu(l) == -mu & eta(l) == eta );
                 
                 angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                
+            elseif ( bc == 4 )
+                
+                loc = find ( mu(l) == -mu & eta(l) == -eta );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
                 
             end
             
@@ -155,6 +181,13 @@ for iter = 1:maxiter
                 
                 angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
                 
+            elseif ( bc == 4 )
+                
+                loc = find( eta(l) == -eta & mu(l) == -mu );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
+                
             end
             
             for j = Ny:-1:1
@@ -180,6 +213,13 @@ for iter = 1:maxiter
         elseif ( mu(l) < 0 && eta(l) < 0 )
             
             if ( bc == 3 )
+                
+                loc = find ( mu(l) == -mu & eta(l) == -eta );
+                
+                angular_flux_half_x(:,:,l) = angular_flux_half_x(:,:,loc);
+                angular_flux_half_y(:,:,l) = angular_flux_half_y(:,:,loc);
+                
+            elseif ( bc == 4 )
                 
                 loc = find ( mu(l) == -mu & eta(l) == -eta );
                 
