@@ -5,7 +5,7 @@ clc, clear, clf, close all
 
 %% Material Properies
 sigt = 1.0;
-sigs0 = 0.0;
+sigs0 = 0.999;
 siga = sigt - sigs0;
 
 %% Geometry and Angular Discretization
@@ -37,7 +37,7 @@ maxiter = 1e5; %Maximum number of sweeps allowed
 tol = 1e-8;
 
 %% Boundary Conditions
-bc = 1;
+bc = 3;
 %bc = 'Larsen2D-Benchmark';
 
 if ( bc == 1 )
