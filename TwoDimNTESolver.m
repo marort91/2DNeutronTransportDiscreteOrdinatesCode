@@ -5,14 +5,14 @@ clc, clear, clf, close all
 
 %% Material Properies
 sigt = 1.0;
-sigs0 = 0.999;
+sigs0 = 0.0;
 siga = sigt - sigs0;
 
 %% Geometry and Angular Discretization
 xL = 0; xR = 1;
 yB = 0; yT = 1;
 
-Nx = 10; Ny = 10;
+Nx = 1000; Ny = 1000;
 Nang = 16;
 
 [mu,eta,wi] = level_sym_table(Nang);
@@ -29,16 +29,19 @@ y = yB+dy/2:dy:yT-dy/2;
 angular_flux = zeros(Nx,Ny,Nang*(Nang+2)/2);
 
 %% Source Generation
-S = 1.*ones(Nx,Ny);
+S = 0.*ones(Nx,Ny);
 Q = zeros(Nx,Ny);
 
 %% Calculation Parameters
 maxiter = 1e5; %Maximum number of sweeps allowed
 tol = 1e-8;
 
+%% Acceleration Flag
+accel = 'none';
+
 %% Boundary Conditions
-bc = 3;
-%bc = 'Larsen2D-Benchmark';
+%bc = 1;
+bc = 'Larsen2D-Benchmark';
 
 if ( bc == 1 )
     
@@ -62,6 +65,25 @@ end
 fprintf('S%i calculation with scattering cross section = %f \n',Nang,sigs0);
 fprintf('Maximum number of iterations: %i \n',maxiter);
 fprintf('Scalar flux two-norm tolerance: %e \n',tol);
+
+if ( strcmp(accel,'none') == 1 )
+    
+    fprintf('No acceleration enabled \n')
+    
+elseif ( strcmp(accel,'DSA') == 1 )
+    
+    fprintf('Diffusion-synthetic acceleration enabled \n')
+    
+elseif ( strcmp(accel,'TSA') == 1 )
+    
+    fprintf('Transport-synthetic acceleration enabled \n')
+    
+else
+    
+    error('No acceleration flag set')
+    
+end
+
 fprintf('\n');
 
 %% Initialization of Angular Flux Evaluated at Half-Points Arrays
@@ -78,6 +100,12 @@ for iter = 1:maxiter
     for k = 1:Nang*(Nang+2)/2
         
         scalar_flux = scalar_flux + 0.25.*wi(k).*angular_flux(:,:,k);
+        
+    end
+    
+    if ( strcmp(accel,'DSA') == 1 && iter > 1 )
+        
+        scalar_flux = scalar_flux + f;
         
     end
     
@@ -268,11 +296,19 @@ for iter = 1:maxiter
     end
     
     residual = norm(scalar_flux_new-scalar_flux_prev);
+    err(iter) = residual;
+    
     fprintf('Residual: %e     Iteration: %i \n',residual,iter-1);
     
     if ( residual < tol )
         
         break
+        
+    end
+    
+    if ( strcmp(accel,'DSA') == 1 )
+    
+        f = TwoDim_DiffusionSyntheticAccel(Nx,dx,Ny,dy,sigt,sigs0,siga,scalar_flux_prev,scalar_flux_new);
         
     end
        
@@ -299,5 +335,8 @@ else
     mesh(x,y,scalar_flux);
     xlabel('x-direction');
     ylabel('y-direction');
+    axis([xL xR yB yT min(min(scalar_flux)) max(max(scalar_flux))])
     
 end
+
+% semilogy(1:length(err),err);
