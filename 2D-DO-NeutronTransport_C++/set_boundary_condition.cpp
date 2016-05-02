@@ -9,7 +9,7 @@ void set_boundary_condition( int bc, int Nx, int Ny, int ord,
 {
 	if ( bc == 1 )
 	{
-		for ( int i = 0; i < Nx; i++ )
+		for ( int i = 0; i < Nx+1; i++ )
 		{
 			for ( int j = 0; j < ord; j++ )
 			{
@@ -17,7 +17,7 @@ void set_boundary_condition( int bc, int Nx, int Ny, int ord,
 			}
 		}
 
-		for ( int i = 0; i < Ny; i++ )
+		for ( int i = 0; i < Ny+1; i++ )
 		{
 			for ( int j = 0; j < ord; j++ )
 			{
