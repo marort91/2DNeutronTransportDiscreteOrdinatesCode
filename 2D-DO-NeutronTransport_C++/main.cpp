@@ -14,6 +14,7 @@ int main()
 	int N = 2; int Nx = 2; int Ny = 2; int ord = N*(N+2)/2;
 	double xL = 0; double xR = 1; double yB = 0; double yT = 1;
 	std::vector<double> x; std::vector<double> y; double dx; double dy;
+	double residual;
 
 	dx = ( xR - xL )/(float)Nx;
 	dy = ( yT - yB )/(float)Ny;
@@ -22,19 +23,12 @@ int main()
 	std::vector<double> mu; std::vector<double> eta; std::vector<double> wi;
 	std::vector<std::vector<std::vector<double> > > half_angular_flux_x;
 	std::vector<std::vector<std::vector<double> > > half_angular_flux_y;
-	
-	//vector<vector<vector<double> > > half_angular_flux_x (Nx,vector<vector<double> > (Nx+1,vector <double>(ord)));
-	//vector<vector<vector<double> > > half_angular_flux_y (Ny+1,vector<vector<double> > (Ny,vector <double>(ord)));
-	//vector<vector<vector<double> > > angular_flux (Nx,vector<vector<double> > (Ny,vector <double>(ord)));
-	
-	//vector<vector<double> > scalar_flux (Nx, vector<double> (Ny));
 
 	std::vector<std::vector<std::vector<double> > > angular_flux;
 	std::vector<std::vector<double> > scalar_flux;
+	std::vector<std::vector<double> > scalar_flux_previous;
 
 	// Source Initialization
-	//vector<vector<double> > S (Nx, vector<double> (Ny));
-	//vector<vector<double> > Q (Nx, vector<double> (Ny));
 	std::vector<std::vector<double> > S; std::vector<std::vector<double> > Q;
 
 	// Boundary Condition Flag
@@ -44,25 +38,28 @@ int main()
 	level_sym_quad( N, mu, eta, wi );
 	array_initialize( Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
-	//set_boundary_condition( bc, Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y );
-
-	scatter_scalarflux_source(Ny,Ny,ord,angular_flux,scalar_flux,wi);
+	set_boundary_condition( bc, Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y );
 
 	int Q0 = 1;
 
 	const_external_source_def(Q,Q0,Nx,Ny);
 
-	//cout << half_angular_flux_x[3].size() << '\n';
-
 	// Transport Sweep
 
 	// Physical Constants
-	double sigt = 1; double sigs = 0; 
+	double sigt = 1; double sigs = 0.1; 
 
-	int itermax = 1;
+	double tol = 1e-8;
+
+	int itermax = 10;
 
 	for ( int iter = 0; iter < itermax; iter++ )
 	{
+		calculate_scalarflux( Ny,Ny,ord,angular_flux,scalar_flux,wi );
+
+		scalar_flux_previous = scalar_flux;
+
+		source_external_scattering( Q, scalar_flux, sigs, Q0, Nx, Ny );
 
 		for ( int k = 0; k < ord; k++ )
 		{
@@ -140,22 +137,19 @@ int main()
 			}
 		}
 
-	}
+		calculate_scalarflux( Ny,Ny,ord,angular_flux,scalar_flux,wi );
 
-	for ( int i = 0; i < Nx; i++ )
-	{
-		for ( int j = 0; j < Ny; j++ )
+		residual = norm(Nx,Ny,scalar_flux,scalar_flux_previous);
+
+		if ( residual < tol )
 		{
-			for ( int k = 0; k < ord; k++ )
-			{
-				//cout << angular_flux[i][j][k] << '\n';
-			}
-
-			cout << '\n';
+			cout << residual << '\n';
+			cout << iter << '\n';
+			break;
 		}
 
 	}
 
-	//cout << mu[0] << '\n';
+	output_write( Nx,Ny,scalar_flux );
 
 }

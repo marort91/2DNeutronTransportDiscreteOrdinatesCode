@@ -14,8 +14,12 @@ double norm( int Nx, int Ny, std::vector<std::vector<double> > M1, std::vector<s
 void set_boundary_condition( int bc, int Nx, int Ny, int ord, 
 							 std::vector<std::vector<std::vector<double> > > &half_angular_flux_x,
 	                         std::vector<std::vector<std::vector<double> > > &half_angular_flux_y );
-void scatter_scalarflux_source( int Nx, int Ny, int ord, std::vector<std::vector<std::vector<double> > > &angular_flux,
-	                            std::vector<std::vector<double> > &scalar_flux, std::vector<double> wi );
+void calculate_scalarflux( int Nx, int Ny, int ord, std::vector<std::vector<std::vector<double> > > &angular_flux,
+	                             std::vector<std::vector<double> > &scalar_flux, std::vector<double> wi );
 void const_external_source_def( std::vector<std::vector<double> > &Q, int Q0, int Nx, int Ny );
+void source_external_scattering( std::vector<std::vector<double> > &Q,
+                                 std::vector<std::vector<double> > &scalar_flux,
+                                 double sigs0, int Q0, int Nx, int Ny );
+void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux);
 
 #endif 
