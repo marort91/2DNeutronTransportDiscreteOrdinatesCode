@@ -11,7 +11,8 @@ void spatial_discretize( double xL, double xR, int Nx, double dx,
 	                     double yB, double yT, int Ny, double dy, 
 	                     std::vector<double> &x, std::vector<double> &y );
 double norm( int Nx, int Ny, std::vector<std::vector<double> > M1, std::vector<std::vector<double> > M2);
-void set_boundary_condition( int bc, int Nx, int Ny, int ord, 
+void set_boundary_condition( int bc, int Nx, int Ny, int ord, int k,
+							 std::vector<double> &mu, std::vector<double> &eta,
 							 std::vector<std::vector<std::vector<double> > > &half_angular_flux_x,
 	                         std::vector<std::vector<std::vector<double> > > &half_angular_flux_y );
 void calculate_scalarflux( int Nx, int Ny, int ord, std::vector<std::vector<std::vector<double> > > &angular_flux,
@@ -21,5 +22,6 @@ void source_external_scattering( std::vector<std::vector<double> > &Q,
                                  std::vector<std::vector<double> > &scalar_flux,
                                  double sigs0, int Q0, int Nx, int Ny );
 void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux);
+//int set_reflecting_BC( int ord, double muk, double etak, std::vector<double> &mu, std::vector<double> &eta );
 
 #endif 
