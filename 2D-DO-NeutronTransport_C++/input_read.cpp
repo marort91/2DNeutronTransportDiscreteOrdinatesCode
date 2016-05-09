@@ -7,7 +7,7 @@ using namespace std;
 //*******************************************************************************************************************************
 
 void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
-				int &bc, double &sigt, double &sigs0, double &tol)
+				int &bc, double &sigt, double &sigs0, double &tol, std::string &srcfid)
 
 //*******************************************************************************************************************************
 
@@ -20,6 +20,10 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 	string fid;
 	std::cout << "Enter input file with extension: ";
 	cin  >> fid;
+
+	cout << "Echoing input file: " << '\n';
+	cout << "*******************************************************************************************************************************" << '\n';
+	cout << '\n';
 
 	ifstream inpfile;
 	inpfile.open(fid);
@@ -109,6 +113,13 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 			cout << tol << '\n';
 			idx++;
 		}
+		else if ( idx == 24 )
+		{
+			getline(inpfile,line,'\n');
+			srcfid = line;
+			cout << srcfid << '\n';
+			idx++;
+		}
 		else
 		{
 			getline(inpfile, line);
@@ -118,5 +129,7 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 		
 	}
 	inpfile.close();
+
+	//cout << '\n';
 
 }

@@ -21,9 +21,16 @@ void const_external_source_def( std::vector<std::vector<double> > &Q, int Q0, in
 void source_external_scattering( std::vector<std::vector<double> > &Q,
                                  std::vector<std::vector<double> > &scalar_flux,
                                  double sigs0, int Q0, int Nx, int Ny );
+//void source_external_scattering( std::vector<std::vector<double> > &S, std::vector<std::vector<double> > &Q,
+  //                               std::vector<std::vector<double> > &scalar_flux,
+    //                             double sigs0, int Nx, int Ny );
 void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux);
-void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
-				int &bc, double &sigt, double &sigs0, double &tol);
+void input_read( int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
+				int &bc, double &sigt, double &sigs0, double &tol, std::string &srcfid );
+void source_file_read( std::vector<std::vector<double> > &S, std::string fid, int Nx, int Ny );
 //int set_reflecting_BC( int ord, double muk, double etak, std::vector<double> &mu, std::vector<double> &eta );
+void src_extrn_scalarflux( std::vector<std::vector<double> > &S, std::vector<std::vector<double> > &Q,
+                                 std::vector<std::vector<double> > &scalar_flux,
+                                 double sigs0, int Nx, int Ny );
 
 #endif 

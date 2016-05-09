@@ -10,14 +10,21 @@ using namespace std;
 int main()
 {
 
-	// Spatial and Angular Variable Initialization
-	//int N = 16; int Nx = 100; int Ny = 100; int ord = N*(N+2)/2;
-	//double xL = 0; double xR = 1; double yB = 0; double yT = 1;
+	cout << '\n';
+	cout << "2D Discrete Ordinates Radiation Transport Code" << '\n';
+	cout << "Author: Mario I. Ortega" << '\n';
+	cout << "Institution: University of California, Berkeley" <<'\n';
+	cout << '\n';
 
+	// Spatial and Angular Variable Initialization
 	int N; int Nx; int Ny; double xL; double xR; double yB; double yT;
 				int bc; double sigt; double sigs; double tol; int ord;
 
-	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigt, sigs, tol );
+	std::string srcfid;
+
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigt, sigs, tol, srcfid );
+
+	cout << '\n';
 
 	ord = N*(N+2)/2;
 
@@ -38,39 +45,35 @@ int main()
 
 	// Source Initialization
 	std::vector<std::vector<double> > S; std::vector<std::vector<double> > Q;
-
-	// Boundary Condition Flag
-	//std::string bc = "Larsen-2D";
-	//int bc = 0;
-	//int reflect_idx;
 	
 	level_sym_quad( N, mu, eta, wi );
 	array_initialize( Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
-	int Q0 = 1;
+	cout << "Reading source file: " << srcfid << '\n';
+	
+	source_file_read( S, srcfid, Nx, Ny );
 
-	const_external_source_def(Q,Q0,Nx,Ny);
+	cout << '\n';
+	cout << "Beginning transport sweep! " << '\n';
+	cout << '\n';
 
 	// Transport Sweep
 
-	// Physical Constants
-	//double sigt = 1; double sigs = 0.99999; 
-
-	//double tol = 1e-8;
-
-	int itermax = 100000;
+	int itermax = 10;
 
 	for ( int iter = 0; iter < itermax; iter++ )
 	{
 
 		set_boundary_condition( bc, Nx, Ny, ord, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 
-		calculate_scalarflux( Ny,Ny,ord,angular_flux,scalar_flux,wi );
+		calculate_scalarflux( Ny, Ny, ord, angular_flux, scalar_flux, wi );
 
 		scalar_flux_previous = scalar_flux;
 
-		source_external_scattering( Q, scalar_flux, sigs, Q0, Nx, Ny );
+		//source_external_scattering( Q, scalar_flux, sigs, Q0, Nx, Ny );
+		//source_external_scattering( S, Q, scalar_flux, sigs, Nx, Ny );
+		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny );
 
 		for ( int k = 0; k < ord; k++ )
 		{
@@ -172,18 +175,22 @@ int main()
 
 		residual = norm(Nx,Ny,scalar_flux,scalar_flux_previous);
 
-		cout << iter << '\n';
-		cout << "Residual:" << " " << residual << '\n';
+		//cout << iter << '\n';
+		cout << "Iteration: " << iter << " " << "Residual: " << " " << residual << '\n';
 
 		if ( residual < tol )
 		{
-			cout << residual << '\n';
-			//cout << iter << '\n';
+			cout << '\n';
+			cout << "Calculation converged with residual " << residual << '\n';
+			cout << '\n';
 			break;
 		}
 
 	}
 
 	output_write( Nx,Ny,scalar_flux );
+
+	cout << "Output file scalar_flux.out created in directory. " << '\n';
+	cout << '\n';
 
 }
