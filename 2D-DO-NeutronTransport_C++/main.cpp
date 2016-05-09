@@ -11,8 +11,16 @@ int main()
 {
 
 	// Spatial and Angular Variable Initialization
-	int N = 2; int Nx = 10; int Ny = 10; int ord = N*(N+2)/2;
-	double xL = 0; double xR = 1; double yB = 0; double yT = 1;
+	//int N = 16; int Nx = 100; int Ny = 100; int ord = N*(N+2)/2;
+	//double xL = 0; double xR = 1; double yB = 0; double yT = 1;
+
+	int N; int Nx; int Ny; double xL; double xR; double yB; double yT;
+				int bc; double sigt; double sigs; double tol; int ord;
+
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigt, sigs, tol );
+
+	ord = N*(N+2)/2;
+
 	std::vector<double> x; std::vector<double> y; double dx; double dy;
 	double residual;
 
@@ -33,7 +41,7 @@ int main()
 
 	// Boundary Condition Flag
 	//std::string bc = "Larsen-2D";
-	int bc = 0;
+	//int bc = 0;
 	//int reflect_idx;
 	
 	level_sym_quad( N, mu, eta, wi );
@@ -47,11 +55,11 @@ int main()
 	// Transport Sweep
 
 	// Physical Constants
-	double sigt = 1; double sigs = 0.9999; 
+	//double sigt = 1; double sigs = 0.99999; 
 
-	double tol = 1e-3;
+	//double tol = 1e-8;
 
-	int itermax = 1000;
+	int itermax = 100000;
 
 	for ( int iter = 0; iter < itermax; iter++ )
 	{
@@ -68,6 +76,10 @@ int main()
 		{
 			if ( mu[k] > 0 && eta[k] > 0 )
 			{
+				if ( bc == 4)
+				{
+					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
+				}
 
 				for ( int j = 0; j < Ny; j++ )
 				{
@@ -87,7 +99,7 @@ int main()
 			}
 			else if ( mu[k] < 0 && eta[k] > 0 )
 			{
-				if ( bc == 2 )
+				if ( bc == 2 || bc == 4 )
 				{
 					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
@@ -110,7 +122,7 @@ int main()
 			}
 			else if ( mu[k] > 0 && eta[k] < 0 )
 			{
-				if ( bc == 2 )
+				if ( bc == 2 || bc == 4 )
 				{
 					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
@@ -133,7 +145,7 @@ int main()
 			}
 			else if ( mu[k] < 0 && eta[k] < 0 )
 			{
-				if ( bc == 2 )
+				if ( bc == 2 || bc == 4 )
 				{
 					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}

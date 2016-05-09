@@ -22,6 +22,8 @@ void source_external_scattering( std::vector<std::vector<double> > &Q,
                                  std::vector<std::vector<double> > &scalar_flux,
                                  double sigs0, int Q0, int Nx, int Ny );
 void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux);
+void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
+				int &bc, double &sigt, double &sigs0, double &tol);
 //int set_reflecting_BC( int ord, double muk, double etak, std::vector<double> &mu, std::vector<double> &eta );
 
 #endif 

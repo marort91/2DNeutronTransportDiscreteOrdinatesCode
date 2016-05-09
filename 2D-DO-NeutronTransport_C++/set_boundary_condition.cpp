@@ -29,7 +29,7 @@ void set_boundary_condition( int bc, int Nx, int Ny, int ord, int k,
 			}
 		}
 	}
-	else if ( bc == 2 )
+	else if ( bc == 2 || bc == 4 )
 	{
 		reflect_idx = set_reflecting_BC( ord, mu[k], eta[k], mu, eta );
 
@@ -57,7 +57,19 @@ int set_reflecting_BC( int ord, double muk, double etak, std::vector<double> &mu
 {
 	int reflect_idx;
 
-	if ( muk < 0 & etak > 0 )
+	if ( muk > 0 & etak > 0)
+	{
+		for ( int i = 0; i < ord; i++ )
+		{
+			if ( muk == -mu[i] & etak == -eta[i]) 
+			{
+				reflect_idx = i;
+				break;
+			}
+		}
+	}
+
+	else if ( muk < 0 & etak > 0 )
 	{
 		for ( int i = 0; i < ord; i++ )
 		{
