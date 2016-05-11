@@ -28,6 +28,12 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 	ifstream inpfile;
 	inpfile.open(fid);
 
+	if ( !inpfile )
+	{
+		cout << "File does not exist!!!" << '\n';
+		exit(EXIT_FAILURE);
+	}
+
 	while ( !inpfile.eof() )
 	{
 		if ( idx == 0 )

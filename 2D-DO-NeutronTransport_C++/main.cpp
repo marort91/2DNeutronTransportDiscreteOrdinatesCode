@@ -51,6 +51,10 @@ int main()
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
 	cout << "Reading source file: " << srcfid << '\n';
+	cout << '\n';
+
+	cout << "Press enter to continue..." << '\n';
+	system("read");
 	
 	source_file_read( S, srcfid, Nx, Ny );
 
@@ -60,7 +64,7 @@ int main()
 
 	// Transport Sweep
 
-	int itermax = 10;
+	int itermax = 100000;
 
 	for ( int iter = 0; iter < itermax; iter++ )
 	{
