@@ -19,12 +19,14 @@ int main()
 	// Spatial and Angular Variable Initialization
 	int N; int Nx; int Ny; double xL; double xR; double yB; double yT;
 				int bc; double tol; int ord;
+				int Egrp;
 
 	std::string srcfid;
 	std::string sigtfid;
 	std::string sigsfid;
+	std::string nusigffid;
 
-	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, tol, srcfid );
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, tol, srcfid, Egrp );
 
 	cout << '\n';
 
@@ -47,10 +49,10 @@ int main()
 
 	// Source Initialization
 	std::vector<std::vector<double> > S; std::vector<std::vector<double> > Q;
-	std::vector<std::vector<double> > sigt; std::vector<std::vector<double> > sigs;
+	std::vector<std::vector<double> > sigt; std::vector<std::vector<double> > sigs; std::vector<std::vector<double> > nusigf;
 	
 	level_sym_quad( N, mu, eta, wi );
-	array_initialize( Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs );
+	array_initialize( Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
 	cout << "Reading source file: " << srcfid << '\n';
@@ -60,7 +62,7 @@ int main()
 	system("read");
 	
 	source_file_read( S, srcfid, Nx, Ny );
-	xs_file_read( sigt, sigtfid, sigs, sigsfid, Nx, Ny);
+	xs_file_read( sigt, sigtfid, sigs, sigsfid, nusigf, nusigffid, Nx, Ny);
 
 	cout << '\n';
 	cout << "Beginning transport sweep! " << '\n';

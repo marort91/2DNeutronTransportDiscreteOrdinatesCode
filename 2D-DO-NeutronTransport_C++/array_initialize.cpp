@@ -7,7 +7,8 @@ void array_initialize( int Nx, int Ny, int ord, std::vector<std::vector<std::vec
 	                   std::vector<std::vector<std::vector<double> > > &angular_flux,
 	                   std::vector<std::vector<double> > &scalar_flux,
 	                   std::vector<std::vector<double> > &S, std::vector<std::vector<double> > &Q,
-	                   std::vector<std::vector<double> > &sigt, std::vector<std::vector<double> > &sigs )
+	                   std::vector<std::vector<double> > &sigt, std::vector<std::vector<double> > &sigs,
+	                   std::vector<std::vector<double> > &nusigf )
 
 //*******************************************************************************************************************************
 //
@@ -94,12 +95,14 @@ void array_initialize( int Nx, int Ny, int ord, std::vector<std::vector<std::vec
 	Q.resize(Nx);
 	sigt.resize(Nx);
 	sigs.resize(Nx);
+	nusigf.resize(Nx);
 	for ( int i = 0; i < Ny; i++ )
 	{
 		S[i].resize(Ny);
 		Q[i].resize(Ny);
 		sigt[i].resize(Ny);
 		sigs[i].resize(Ny);
+		nusigf[i].resize(Ny);
 	}
 
 }

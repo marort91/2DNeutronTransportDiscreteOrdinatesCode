@@ -7,7 +7,7 @@ using namespace std;
 //*******************************************************************************************************************************
 
 void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
-				int &bc, std::string &sigtfid, std::string &sigsfid, double &tol, std::string &srcfid)
+				int &bc, std::string &sigtfid, std::string &sigsfid, double &tol, std::string &srcfid, int &Egrp)
 
 //*******************************************************************************************************************************
 
@@ -124,6 +124,13 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 			getline(inpfile,line,'\n');
 			srcfid = line;
 			cout << srcfid << '\n';
+			idx++;
+		}
+		else if ( idx == 26 )
+		{
+			getline(inpfile,line,'\n');
+			Egrp = stod(line);
+			cout << Egrp << '\n';
 			idx++;
 		}
 		else

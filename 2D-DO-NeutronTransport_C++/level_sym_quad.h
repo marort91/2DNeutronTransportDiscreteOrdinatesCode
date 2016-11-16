@@ -6,7 +6,10 @@ void array_initialize( int Nx, int Ny, int Nang, std::vector<std::vector<std::ve
 	                   std::vector<std::vector<std::vector<double> > > &half_angular_flux_y,
 	                   std::vector<std::vector<std::vector<double> > > &angular_flux,
 	                   std::vector<std::vector<double> > &scalar_flux, std::vector<std::vector<double> > &S, 
-	                   std::vector<std::vector<double> > &Q );
+	                   std::vector<std::vector<double> > &Q, 
+	                   std::vector<std::vector<double> > &sigt, 
+	                   std::vector<std::vector<double> > &sigs,
+	                   std::vector<std::vector<double> > &nusigf);
 void spatial_discretize( double xL, double xR, int Nx, double dx, 
 	                     double yB, double yT, int Ny, double dy, 
 	                     std::vector<double> &x, std::vector<double> &y );
@@ -25,12 +28,15 @@ void source_external_scattering( std::vector<std::vector<double> > &Q,
   //                               std::vector<std::vector<double> > &scalar_flux,
     //                             double sigs0, int Nx, int Ny );
 void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux);
-void input_read( int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
-				int &bc, double &sigt, double &sigs0, double &tol, std::string &srcfid );
+void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
+				int &bc, std::string &sigtfid, std::string &sigsfid, double &tol, std::string &srcfid, int &Egrp);
 void source_file_read( std::vector<std::vector<double> > &S, std::string fid, int Nx, int Ny );
 //int set_reflecting_BC( int ord, double muk, double etak, std::vector<double> &mu, std::vector<double> &eta );
 void src_extrn_scalarflux( std::vector<std::vector<double> > &S, std::vector<std::vector<double> > &Q,
                                  std::vector<std::vector<double> > &scalar_flux,
-                                 double sigs0, int Nx, int Ny );
+                                 std::vector<std::vector<double> > &sigs, int Nx, int Ny );
+void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::string sigtfid, 
+	               std::vector<std::vector<std::vector<double> > > &sigs, std::string sigsfid, 
+	               std::vector<std::vector<std::vector<double> > > &nusigf, std::string nusigffid, int Nx, int Ny )
 
 #endif 
