@@ -25,13 +25,14 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 	{
 		getline(sigtsrcfile,sigtline);
 
-		for ( int x = 0; getline(sigtsrcfile,sigtline); x++ )
+		for ( int x = 0; x < Nx; x++ )
 		{
+			getline(sigtsrcfile,sigtline);
+
 			if ( sigtline[0] == 'E')
 			{
 				Egrp = Egrp + 1;
 				getline(sigtsrcfile,sigtline);
-				x = 0;
 			}
 
 			std::istringstream iss(sigtline);
@@ -46,8 +47,8 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 		sigtsrcfile.close();
 	}
 		
-	std::string nusigfline;
-	std::ifstream nusigfsrcfile;
+	std::string sigsline;
+	std::ifstream sigssrcfile;
 
 	Egrp = 0;
 
@@ -57,13 +58,14 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 	{
 		getline(sigssrcfile,sigsline);
 
-		for ( int x = 0; getline(sigssrcfile,sigsline); x++ )
+		for ( int x = 0; x < Nx; x++ )
 		{
+			getline(sigssrcfile,sigsline);
+
 			if ( sigtline[0] == 'E')
 			{
 				Egrp = Egrp + 1;
 				getline(sigssrcfile,sigsline);
-				x = 0;
 			}
 
 			std::istringstream iss(sigsline);
@@ -89,13 +91,14 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 	{
 		getline(nusigfsrcfile,nusigfline);
 
-		for ( int x = 0; getline(nusigfsrcfile,nusigfline); x++ )
+		for ( int x = 0; x < Nx; x++ )
 		{
+			getline(nusigfsrcfile,nusigfline);
+
 			if ( sigtline[0] == 'E')
 			{
 				Egrp = Egrp + 1;
 				getline(nusigfsrcfile,nusigfline);
-				x = 0;
 			}
 
 			std::istringstream iss(nusigfline);

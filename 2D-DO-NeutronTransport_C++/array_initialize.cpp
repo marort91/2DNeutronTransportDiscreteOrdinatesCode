@@ -2,13 +2,13 @@
 
 //*******************************************************************************************************************************
 
-void array_initialize( int Nx, int Ny, int ord, std::vector<std::vector<std::vector<double> > > &half_angular_flux_x, 
+void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vector<std::vector<double> > > &half_angular_flux_x, 
 	                   std::vector<std::vector<std::vector<double> > > &half_angular_flux_y,
 	                   std::vector<std::vector<std::vector<double> > > &angular_flux,
-	                   std::vector<std::vector<double> > &scalar_flux,
-	                   std::vector<std::vector<double> > &S, std::vector<std::vector<double> > &Q,
-	                   std::vector<std::vector<double> > &sigt, std::vector<std::vector<double> > &sigs,
-	                   std::vector<std::vector<double> > &nusigf )
+	                   std::vector<std::vector<std::vector<double> > > &scalar_flux,
+	                   std::vector<std::vector<std::vector<double> > > &S, std::vector<std::vector<std::vector<double> > > &Q,
+	                   std::vector<std::vector<std::vector<double> > > &sigt, std::vector<std::vector<std::vector<double> > > &sigs,
+	                   std::vector<std::vector<std::vector<double> > > &nusigf )
 
 //*******************************************************************************************************************************
 //
@@ -88,6 +88,9 @@ void array_initialize( int Nx, int Ny, int ord, std::vector<std::vector<std::vec
 	for ( int i = 0; i < Nx; i++ )
 	{
 		scalar_flux[i].resize(Ny);
+
+		for ( int j = 0; j < Ny; j++ )
+			scalar_flux[i][j].resize(Egrp);
 	}
 
 	// Set up source and scattering scalar flux arrays.
@@ -96,13 +99,25 @@ void array_initialize( int Nx, int Ny, int ord, std::vector<std::vector<std::vec
 	sigt.resize(Nx);
 	sigs.resize(Nx);
 	nusigf.resize(Nx);
-	for ( int i = 0; i < Ny; i++ )
+	for ( int i = 0; i < Nx; i++ )
 	{
 		S[i].resize(Ny);
 		Q[i].resize(Ny);
 		sigt[i].resize(Ny);
 		sigs[i].resize(Ny);
 		nusigf[i].resize(Ny);
+	}
+
+	for ( int i = 0; i < Nx; i++ )
+	{
+		for ( int j = 0; j < Ny; j++ )
+		{
+			S[i][j].resize(Egrp);
+			Q[i][j].resize(Egrp);
+			sigt[i][j].resize(Egrp);
+			sigs[i][j].resize(Egrp);
+			nusigf[i][j].resize(Egrp);
+		}
 	}
 
 }

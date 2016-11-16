@@ -3,15 +3,18 @@
 
 //*******************************************************************************************************************************
 
-double norm( int Nx, int Ny, std::vector<std::vector<double> > M1, std::vector<std::vector<double> > M2)
+double norm( int Nx, int Ny, int Egrp, std::vector<std::vector<std::vector<double> > > M1, std::vector<std::vector<std::vector<double> > > M2)
 {
 	double cum = 0;
 
-	for ( int i = 0; i < Nx; i++ )
+	for ( int k = 0; k < Egrp; k++ )
 	{
-		for ( int j = 0; j < Ny; j++ )
+		for ( int i = 0; i < Nx; i++ )
 		{
-			cum += fabs( M1[i][j] - M2[i][j] ) * fabs( M1[i][j] - M2[i][j] );
+			for ( int j = 0; j < Ny; j++ )
+			{
+				cum += fabs( M1[i][j][k] - M2[i][j][k] ) * fabs( M1[i][j][k] - M2[i][j][k] );
+			}
 		}
 	}
 

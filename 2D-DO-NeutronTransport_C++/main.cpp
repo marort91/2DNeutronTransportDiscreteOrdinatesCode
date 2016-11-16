@@ -26,7 +26,7 @@ int main()
 	std::string sigsfid;
 	std::string nusigffid;
 
-	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, tol, srcfid, Egrp );
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, nusigffid, tol, srcfid, Egrp );
 
 	cout << '\n';
 
@@ -44,15 +44,16 @@ int main()
 	std::vector<std::vector<std::vector<double> > > half_angular_flux_y;
 
 	std::vector<std::vector<std::vector<double> > > angular_flux;
-	std::vector<std::vector<double> > scalar_flux;
-	std::vector<std::vector<double> > scalar_flux_previous;
+	std::vector<std::vector<std::vector<double> > > scalar_flux;
+	std::vector<std::vector<std::vector<double> > > scalar_flux_previous;
 
 	// Source Initialization
-	std::vector<std::vector<double> > S; std::vector<std::vector<double> > Q;
-	std::vector<std::vector<double> > sigt; std::vector<std::vector<double> > sigs; std::vector<std::vector<double> > nusigf;
+	std::vector<std::vector<std::vector<double> > > S; std::vector<std::vector<std::vector<double> > > Q;
+	std::vector<std::vector<std::vector<double> > > sigt; std::vector<std::vector<std::vector<double> > > sigs; 
+	std::vector<std::vector<std::vector<double> > > nusigf;
 	
 	level_sym_quad( N, mu, eta, wi );
-	array_initialize( Nx, Ny, ord, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf );
+	array_initialize( Nx, Ny, ord, Egrp, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
 	cout << "Reading source file: " << srcfid << '\n';
@@ -74,14 +75,13 @@ int main()
 
 	for ( int iter = 0; iter < itermax; iter++ )
 	{
-
+		for ( int Eiter = 0; Eiter < Egrp; Eiter++ )
+		{
+		
 		set_boundary_condition( bc, Nx, Ny, ord, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
-
-		calculate_scalarflux( Ny, Ny, ord, angular_flux, scalar_flux, wi );
-
+		calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 		scalar_flux_previous = scalar_flux;
-
-		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny );
+		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp );
 
 		for ( int k = 0; k < ord; k++ )
 		{
@@ -96,8 +96,8 @@ int main()
 				{
 					for ( int i = 0; i < Nx; i++ )
 					{
-						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j] )/
-												( 2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j] );
+						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j][Eiter] )/
+												( 2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j][Eiter] );
 						half_angular_flux_x[j][i+1][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i][k];
 					}
 
@@ -118,8 +118,8 @@ int main()
 				{
 					for ( int i = Nx-1; i >= 0; i-- )
 					{
-						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j] )/
-												( -2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j] );
+						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j][Eiter] )/
+												( -2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j][Eiter] );
 						half_angular_flux_x[j][i][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i+1][k];
 					}
 
@@ -140,8 +140,8 @@ int main()
 				{
 					for ( int i = 0; i < Nx; i++ )
 					{
-						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j] )/
-												( 2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j] );
+						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j][Eiter] )/
+												( 2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j][Eiter] );
 						half_angular_flux_x[j][i+1][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i][k];						
 					}
 
@@ -162,8 +162,8 @@ int main()
 				{
 					for ( int i = Nx-1; i >= 0; i-- )
 					{
-						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j] )/
-												( -2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j] );
+						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j][Eiter] )/
+												( -2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j][Eiter] );
 						half_angular_flux_x[j][i][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i+1][k];
 					}
 
@@ -175,9 +175,11 @@ int main()
 			}
 		}
 
-		calculate_scalarflux( Ny,Ny,ord,angular_flux,scalar_flux,wi );
+		}
 
-		residual = norm(Nx,Ny,scalar_flux,scalar_flux_previous);
+		calculate_scalarflux( Ny,Ny,ord,Egrp,angular_flux,scalar_flux,wi );
+
+		residual = norm(Nx,Ny,Egrp,scalar_flux,scalar_flux_previous);
 
 		//cout << iter << '\n';
 		cout << "Iteration: " << iter << " " << "Residual: " << " " << residual << '\n';
@@ -192,7 +194,7 @@ int main()
 
 	}
 
-	output_write( Nx,Ny,scalar_flux );
+	output_write( Nx,Ny,Egrp,scalar_flux );
 
 	cout << "Output file scalar_flux.out created in directory. " << '\n';
 	cout << '\n';

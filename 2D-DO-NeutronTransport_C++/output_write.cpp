@@ -5,7 +5,7 @@
 
 //*******************************************************************************************************************************
 
-void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flux)
+void output_write( int Nx, int Ny, int Egrp, std::vector<std::vector<std::vector<double> > > &scalar_flux)
 
 //*******************************************************************************************************************************
 //
@@ -45,17 +45,21 @@ void output_write( int Nx, int Ny, std::vector<std::vector<double> > &scalar_flu
 	std::ofstream outfile;
 	outfile.open ( "scalar_flux.out");
 
-	for ( int i = 0; i < Nx; i++ )
+	for ( int k = 0; k < Egrp; k++ )
 	{
-		for ( int j = 0; j < Ny; j++ )
+		for ( int i = 0; i < Nx; i++ )
 		{
-			outfile << std::setw(10) << scalar_flux[i][j] << " ";
-
-			if ( ( j + 1 ) % Nx == 0)
+			for ( int j = 0; j < Ny; j++ )
 			{
-				outfile << std::endl;
+				outfile << std::setw(10) << scalar_flux[i][j][k] << " ";
+
+				if ( ( j + 1 ) % Nx == 0)
+				{
+					outfile << std::endl;
+				}
 			}
 		}
+		outfile << '\n';
 	}
 
 	outfile.close ();
