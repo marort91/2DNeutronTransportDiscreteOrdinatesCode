@@ -2,12 +2,13 @@
 
 //*******************************************************************************************************************************
 
-void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vector<std::vector<double> > > &half_angular_flux_x, 
-	                   std::vector<std::vector<std::vector<double> > > &half_angular_flux_y,
-	                   std::vector<std::vector<std::vector<double> > > &angular_flux,
+void array_initialize( int Nx, int Ny, int ord, int Egrp, 
+	                   std::vector<std::vector<std::vector<std::vector<double> > > > &half_angular_flux_x, 
+	                   std::vector<std::vector<std::vector<std::vector<double> > > > &half_angular_flux_y,
+	                   std::vector<std::vector<std::vector<std::vector<double> > > > &angular_flux,
 	                   std::vector<std::vector<std::vector<double> > > &scalar_flux,
 	                   std::vector<std::vector<std::vector<double> > > &S, std::vector<std::vector<std::vector<double> > > &Q,
-	                   std::vector<std::vector<std::vector<double> > > &sigt, std::vector<std::vector<std::vector<double> > > &sigs,
+	                   std::vector<std::vector<std::vector<double> > > &sigt, std::vector<std::vector<double> > &sigs,
 	                   std::vector<std::vector<std::vector<double> > > &nusigf )
 
 //*******************************************************************************************************************************
@@ -60,6 +61,11 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vecto
 		for ( int j = 0; j < Nx+1; j++ )
 		{
 			half_angular_flux_x[i][j].resize(ord);
+
+			for ( int k = 0; k < ord; k++ )
+			{
+				half_angular_flux_x[i][j][k].resize(Egrp);
+			}
 		}
 	}
 
@@ -70,7 +76,14 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vecto
 		half_angular_flux_y[i].resize(Ny);
 
 		for ( int j = 0; j < Ny; j++ )
+		{
 			half_angular_flux_y[i][j].resize(ord);
+
+			for ( int k = 0; k < ord; k++ )
+			{
+				half_angular_flux_y[i][j][k].resize(Egrp);
+			}
+		}
 	}
 
 	// Set up angular flux array.
@@ -80,7 +93,14 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vecto
 		angular_flux[i].resize(Ny);
 
 		for ( int j = 0; j < Ny; j++ )
+		{
 			angular_flux[i][j].resize(ord);
+
+			for (int k = 0; k < ord; k++ )
+			{
+				angular_flux[i][j][k].resize(Egrp);
+			}
+		}
 	}
 
 	// Set up scalar flux array.
@@ -97,15 +117,20 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vecto
 	S.resize(Nx);
 	Q.resize(Nx);
 	sigt.resize(Nx);
-	sigs.resize(Nx);
 	nusigf.resize(Nx);
 	for ( int i = 0; i < Nx; i++ )
 	{
 		S[i].resize(Ny);
 		Q[i].resize(Ny);
 		sigt[i].resize(Ny);
-		sigs[i].resize(Ny);
 		nusigf[i].resize(Ny);
+	}
+
+	// Set up scattering kernel
+	sigs.resize(Egrp);
+	for ( int e = 0; e < Egrp; e++ )
+	{
+		sigs[e].resize(Egrp);
 	}
 
 	for ( int i = 0; i < Nx; i++ )
@@ -115,7 +140,6 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp, std::vector<std::vecto
 			S[i][j].resize(Egrp);
 			Q[i][j].resize(Egrp);
 			sigt[i][j].resize(Egrp);
-			sigs[i][j].resize(Egrp);
 			nusigf[i][j].resize(Egrp);
 		}
 	}

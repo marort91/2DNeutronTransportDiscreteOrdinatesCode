@@ -7,7 +7,8 @@ using namespace std;
 //*******************************************************************************************************************************
 
 void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, double &yT,
-				int &bc, std::string &sigtfid, std::string &sigsfid, std::string &nusigffid, double &tol, std::string &srcfid, int &Egrp)
+				int &bc, std::string &sigtfid, std::string &sigsfid, std::string &nusigffid, double &tol, 
+				std::string &srcfid, int &Egrp, std::string &calc_mode)
 
 //*******************************************************************************************************************************
 
@@ -138,6 +139,13 @@ void input_read(int &N, int &Nx, double &xL, double &xR, int &Ny, double &yB, do
 			getline(inpfile,line,'\n');
 			nusigffid = line;
 			cout << nusigffid << '\n';
+			idx++;
+		}
+		else if ( idx == 30 )
+		{
+			getline(inpfile,line,'\n');
+			calc_mode = line;
+			cout << calc_mode << '\n';
 			idx++;
 		}
 		else

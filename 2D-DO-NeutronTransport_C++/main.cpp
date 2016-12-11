@@ -18,15 +18,17 @@ int main()
 
 	// Spatial and Angular Variable Initialization
 	int N; int Nx; int Ny; double xL; double xR; double yB; double yT;
-				int bc; double tol; int ord;
-				int Egrp;
+	int bc; double tol; int ord; int Egrp;
 
 	std::string srcfid;
 	std::string sigtfid;
 	std::string sigsfid;
 	std::string nusigffid;
+	std::string calc_mode;
 
-	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, nusigffid, tol, srcfid, Egrp );
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, nusigffid, tol, srcfid, Egrp, calc_mode );
+
+	cout << calc_mode << '\n';
 
 	cout << '\n';
 
@@ -40,30 +42,59 @@ int main()
 
 	// Angular and Scalar Flux Initialization
 	std::vector<double> mu; std::vector<double> eta; std::vector<double> wi;
-	std::vector<std::vector<std::vector<double> > > half_angular_flux_x;
-	std::vector<std::vector<std::vector<double> > > half_angular_flux_y;
+	std::vector<std::vector<std::vector<std::vector<double> > > > half_angular_flux_x;
+	std::vector<std::vector<std::vector<std::vector<double> > > > half_angular_flux_y;
 
-	std::vector<std::vector<std::vector<double> > > angular_flux;
+	std::vector<std::vector<std::vector<std::vector<double> > > > angular_flux;
 	std::vector<std::vector<std::vector<double> > > scalar_flux;
 	std::vector<std::vector<std::vector<double> > > scalar_flux_previous;
 
 	// Source Initialization
 	std::vector<std::vector<std::vector<double> > > S; std::vector<std::vector<std::vector<double> > > Q;
-	std::vector<std::vector<std::vector<double> > > sigt; std::vector<std::vector<std::vector<double> > > sigs; 
+	std::vector<std::vector<std::vector<double> > > sigt; std::vector<std::vector<double> > sigs; 
 	std::vector<std::vector<std::vector<double> > > nusigf;
 	
 	level_sym_quad( N, mu, eta, wi );
 	array_initialize( Nx, Ny, ord, Egrp, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
-	cout << "Reading source file: " << srcfid << '\n';
-	cout << '\n';
+	if ( calc_mode.compare("Source") == 1 )
+	{
+		cout << "Reading source file: " << srcfid << '\n';
+		cout << '\n';	
+	}
+	else
+	{
+		cout << "Criticality Calculation" << '\n';
+		cout << "External Source Set to Zero" << '\n';
+		cout << '\n';
+	}
+	
 
 	cout << "Press enter to continue..." << '\n';
 	system("read");
 	
-	source_file_read( S, srcfid, Nx, Ny );
-	xs_file_read( sigt, sigtfid, sigs, sigsfid, nusigf, nusigffid, Nx, Ny);
+	source_file_read( S, srcfid, Nx, Ny, calc_mode );
+	xs_file_read( sigt, sigtfid, sigs, sigsfid, nusigf, nusigffid, Nx, Ny, Egrp);
+
+	//for ( int i = 0; i < Egrp; i++ )
+	//{
+	//	for ( int j = 0; j < Egrp; j++ )
+	//	{
+	//		std::cout << i << " " << j << " " << sigs[i][j] << '\n' << std::endl;
+	//	}
+	//}
+
+	//for ( int i = 0; i < Egrp; i++ )
+	//{
+	//	for ( int j = 0; j < Nx; j++ )
+	//	{
+	//		for ( int k = 0; k < Ny; k++ )
+	//		{
+	//			cout << j << " " << k << " " << S[j][k][i] << '\n';
+	//		}
+	//	}
+	//}
 
 	cout << '\n';
 	cout << "Beginning transport sweep! " << '\n';
@@ -78,7 +109,7 @@ int main()
 		for ( int Eiter = 0; Eiter < Egrp; Eiter++ )
 		{
 		
-		set_boundary_condition( bc, Nx, Ny, ord, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
+		set_boundary_condition( bc, Nx, Ny, ord, Egrp, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 		calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 		scalar_flux_previous = scalar_flux;
 		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp );
@@ -89,21 +120,21 @@ int main()
 			{
 				if ( bc == 4)
 				{
-					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
+					set_boundary_condition( bc, Nx, Ny, ord, Egrp, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
 
 				for ( int j = 0; j < Ny; j++ )
 				{
 					for ( int i = 0; i < Nx; i++ )
 					{
-						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j][Eiter] )/
+						angular_flux[j][i][k][Eiter] = ( 2*mu[k]*half_angular_flux_x[j][i][k][Eiter]/dx + 2*eta[k]*half_angular_flux_y[j][i][k][Eiter]/dy + Q[i][j][Eiter] )/
 												( 2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j][Eiter] );
-						half_angular_flux_x[j][i+1][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i][k];
+						half_angular_flux_x[j][i+1][k][Eiter] = 2*angular_flux[j][i][k][Eiter] - half_angular_flux_x[j][i][k][Eiter];
 					}
 
 					for ( int m = 0; m < Nx; m++ )
 					{
-						half_angular_flux_y[j+1][m][k] = 2*angular_flux[j][m][k] - half_angular_flux_y[j][m][k];
+						half_angular_flux_y[j+1][m][k][Eiter] = 2*angular_flux[j][m][k][Eiter] - half_angular_flux_y[j][m][k][Eiter];
 					}
 				}
 			}
@@ -111,21 +142,21 @@ int main()
 			{
 				if ( bc == 2 || bc == 4 )
 				{
-					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
+					set_boundary_condition( bc, Nx, Ny, ord, Egrp, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
 
 				for ( int j = 0; j < Ny; j++ )
 				{
 					for ( int i = Nx-1; i >= 0; i-- )
 					{
-						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx + 2*eta[k]*half_angular_flux_y[j][i][k]/dy + Q[i][j][Eiter] )/
+						angular_flux[j][i][k][Eiter] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k][Eiter]/dx + 2*eta[k]*half_angular_flux_y[j][i][k][Eiter]/dy + Q[i][j][Eiter] )/
 												( -2*mu[k]/dx + 2*eta[k]/dy + sigt[i][j][Eiter] );
-						half_angular_flux_x[j][i][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i+1][k];
+						half_angular_flux_x[j][i][k][Eiter] = 2*angular_flux[j][i][k][Eiter] - half_angular_flux_x[j][i+1][k][Eiter];
 					}
 
 					for ( int m = Nx-1; m >= 0; m-- )
 					{
-						half_angular_flux_y[j+1][m][k] = 2*angular_flux[j][m][k] - half_angular_flux_y[j][m][k];
+						half_angular_flux_y[j+1][m][k][Eiter] = 2*angular_flux[j][m][k][Eiter] - half_angular_flux_y[j][m][k][Eiter];
 					}
 				}
 			}
@@ -133,21 +164,21 @@ int main()
 			{
 				if ( bc == 2 || bc == 4 )
 				{
-					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
+					set_boundary_condition( bc, Nx, Ny, ord, Egrp, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
 
 				for ( int j = Ny-1; j >= 0; j-- )
 				{
 					for ( int i = 0; i < Nx; i++ )
 					{
-						angular_flux[j][i][k] = ( 2*mu[k]*half_angular_flux_x[j][i][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j][Eiter] )/
+						angular_flux[j][i][k][Eiter] = ( 2*mu[k]*half_angular_flux_x[j][i][k][Eiter]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k][Eiter]/dy + Q[i][j][Eiter] )/
 												( 2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j][Eiter] );
-						half_angular_flux_x[j][i+1][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i][k];						
+						half_angular_flux_x[j][i+1][k][Eiter] = 2*angular_flux[j][i][k][Eiter] - half_angular_flux_x[j][i][k][Eiter];						
 					}
 
 					for ( int m = 0; m < Nx; m++ )
 					{
-						half_angular_flux_y[j][m][k] = 2*angular_flux[j][m][k] - half_angular_flux_y[j+1][m][k];
+						half_angular_flux_y[j][m][k][Eiter] = 2*angular_flux[j][m][k][Eiter] - half_angular_flux_y[j+1][m][k][Eiter];
 					}
 				}
 			}
@@ -155,21 +186,21 @@ int main()
 			{
 				if ( bc == 2 || bc == 4 )
 				{
-					set_boundary_condition( bc, Nx, Ny, ord, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
+					set_boundary_condition( bc, Nx, Ny, ord, Egrp, k, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				}
 
 				for ( int j = Ny-1; j >= 0; j-- )
 				{
 					for ( int i = Nx-1; i >= 0; i-- )
 					{
-						angular_flux[j][i][k] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k]/dy + Q[i][j][Eiter] )/
+						angular_flux[j][i][k][Eiter] = ( -2*mu[k]*half_angular_flux_x[j][i+1][k][Eiter]/dx - 2*eta[k]*half_angular_flux_y[j+1][i][k][Eiter]/dy + Q[i][j][Eiter] )/
 												( -2*mu[k]/dx - 2*eta[k]/dy + sigt[i][j][Eiter] );
-						half_angular_flux_x[j][i][k] = 2*angular_flux[j][i][k] - half_angular_flux_x[j][i+1][k];
+						half_angular_flux_x[j][i][k][Eiter] = 2*angular_flux[j][i][k][Eiter] - half_angular_flux_x[j][i+1][k][Eiter];
 					}
 
 					for ( int m = 0; m < Nx; m++ )
 					{
-						half_angular_flux_y[j][m][k] = 2*angular_flux[j][m][k] - half_angular_flux_y[j+1][m][k];
+						half_angular_flux_y[j][m][k][Eiter] = 2*angular_flux[j][m][k][Eiter] - half_angular_flux_y[j+1][m][k][Eiter];
 					}
 				}
 			}
