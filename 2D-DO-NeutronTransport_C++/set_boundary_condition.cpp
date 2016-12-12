@@ -60,6 +60,30 @@ void set_boundary_condition( int bc, int Nx, int Ny, int ord, int E, int k,
 			}
 		}
 	}
+	else
+	{
+		for ( int e = 0; e < E; e++ )
+		{
+			for ( int i = 0; i < Nx; i++ )
+			{
+				for ( int j = 0; j < ord; j++ )
+				{
+					half_angular_flux_x[i][0][j][e] = 0.0;
+				}
+			}
+		}
+
+		for (int e = 0; e < E; e++ )
+		{
+			for ( int i = 0; i < Ny; i++ )
+			{
+				for ( int j = 0; j < ord; j++ )
+				{
+					half_angular_flux_y[0][i][j][e] = 0.0;
+				}
+			}
+		}
+	}
 }
 
 //*******************************************************************************************************************************

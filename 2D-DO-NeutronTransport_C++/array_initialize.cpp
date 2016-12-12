@@ -9,7 +9,8 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp,
 	                   std::vector<std::vector<std::vector<double> > > &scalar_flux,
 	                   std::vector<std::vector<std::vector<double> > > &S, std::vector<std::vector<std::vector<double> > > &Q,
 	                   std::vector<std::vector<std::vector<double> > > &sigt, std::vector<std::vector<double> > &sigs,
-	                   std::vector<std::vector<std::vector<double> > > &nusigf )
+	                   std::vector<std::vector<std::vector<double> > > &nusigf,
+	                   std::vector<double> &chi )
 
 //*******************************************************************************************************************************
 //
@@ -143,5 +144,7 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp,
 			nusigf[i][j].resize(Egrp);
 		}
 	}
+
+	chi.resize(Egrp);
 
 }

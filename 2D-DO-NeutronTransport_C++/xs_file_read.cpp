@@ -9,7 +9,8 @@
 
 void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::string sigtfid, 
 	               std::vector<std::vector<double> > &sigs, std::string sigsfid, 
-	               std::vector<std::vector<std::vector<double> > > &nusigf, std::string nusigffid, int Nx, int Ny, int E )
+	               std::vector<std::vector<std::vector<double> > > &nusigf, std::string nusigffid, std::vector<double> &chi, 
+	               std::string chifid, int Nx, int Ny, int E )
 {
 
 	int Egrp;
@@ -58,34 +59,15 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 		for ( int j = 0; j < E; j++ )
 		{
 			file >> sigs[i][j];
-			//std::cout << sigs[i][j] << std::endl;
 		}
 	}
 
+	std:: ifstream chifile(chifid);
 
-//	sigssrcfile.open(sigsfid);
-
-//	if ( sigssrcfile.is_open() )
-//	{
-
-		//for ( int x = 0; x < Nx; x++ )
-//		for ( int x = 0; getline(sigssrcfile,sigsline); x++ )
-//		{
-//			getline(sigssrcfile,sigsline);
-//
-//			std::istringstream iss(sigsline);
-
-//			for ( int y = 0; y < Egrp; y++)
-//			{
-//				std::string sub;
-//				iss >> sub;
-//				std::cout << sub << '\n' << std::endl;
-//				sigs[x][y] = ::atof(sub.c_str());
-//			}
-//		}
-//		sigssrcfile.close();
-//	}
-
+	for ( int e = 0; e < E; e++ )
+	{
+		chifile >> chi[e];
+	}
 
 	std::string nusigfline;
 	std::ifstream nusigfsrcfile;

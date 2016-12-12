@@ -18,17 +18,16 @@ int main()
 
 	// Spatial and Angular Variable Initialization
 	int N; int Nx; int Ny; double xL; double xR; double yB; double yT;
-	int bc; double tol; int ord; int Egrp;
+	int bc; double tol; int ord; int Egrp; double keff; double keff_previous;
 
 	std::string srcfid;
 	std::string sigtfid;
 	std::string sigsfid;
 	std::string nusigffid;
 	std::string calc_mode;
+	std::string chifid;
 
-	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, nusigffid, tol, srcfid, Egrp, calc_mode );
-
-	cout << calc_mode << '\n';
+	input_read( N, Nx, xL, xR, Ny, yB, yT, bc, sigtfid, sigsfid, nusigffid, tol, srcfid, Egrp, calc_mode, chifid );
 
 	cout << '\n';
 
@@ -54,37 +53,28 @@ int main()
 	std::vector<std::vector<std::vector<double> > > S; std::vector<std::vector<std::vector<double> > > Q;
 	std::vector<std::vector<std::vector<double> > > sigt; std::vector<std::vector<double> > sigs; 
 	std::vector<std::vector<std::vector<double> > > nusigf;
+	std::vector<double> chi;
 	
 	level_sym_quad( N, mu, eta, wi );
-	array_initialize( Nx, Ny, ord, Egrp, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf );
+	array_initialize( Nx, Ny, ord, Egrp, half_angular_flux_x, half_angular_flux_y, angular_flux, scalar_flux, S, Q, sigt, sigs, nusigf, chi );
 	spatial_discretize( xL, xR, Nx, dx, yB, yT, Ny, dy, x, y );
 
-	if ( calc_mode.compare("Source") == 1 )
+	if ( calc_mode == "Source" )
 	{
 		cout << "Reading source file: " << srcfid << '\n';
+		source_file_read( S, srcfid, Nx, Ny, calc_mode );
+		keff = 0;
 		cout << '\n';	
 	}
 	else
 	{
 		cout << "Criticality Calculation" << '\n';
 		cout << "External Source Set to Zero" << '\n';
+		set_extern_src_zero( Nx, Ny, Egrp, S);
+		angular_flux_critical_guess(Nx,Ny,ord,Egrp,angular_flux);
+		keff = 1;
 		cout << '\n';
 	}
-	
-
-	cout << "Press enter to continue..." << '\n';
-	system("read");
-	
-	source_file_read( S, srcfid, Nx, Ny, calc_mode );
-	xs_file_read( sigt, sigtfid, sigs, sigsfid, nusigf, nusigffid, Nx, Ny, Egrp);
-
-	//for ( int i = 0; i < Egrp; i++ )
-	//{
-	//	for ( int j = 0; j < Egrp; j++ )
-	//	{
-	//		std::cout << i << " " << j << " " << sigs[i][j] << '\n' << std::endl;
-	//	}
-	//}
 
 	for ( int i = 0; i < Egrp; i++ )
 	{
@@ -92,10 +82,26 @@ int main()
 		{
 			for ( int k = 0; k < Ny; k++ )
 			{
-				cout << j << " " << k << " " << S[j][k][i] << '\n';
+
+				cout << S[j][k][i] << " ";
+
 			}
+
+			cout << endl;
 		}
+
+		cout << endl;
 	}
+
+	cout << "Press enter to continue..." << '\n';
+	system("read");
+	
+	xs_file_read( sigt, sigtfid, sigs, sigsfid, nusigf, nusigffid, chi, chifid, Nx, Ny, Egrp);
+
+	//for ( int e = 0; e < Egrp; e++ )
+	//{
+	//	cout << chi[e] << " ";
+	//}
 
 	cout << '\n';
 	cout << "Beginning transport sweep! " << '\n';
@@ -116,7 +122,7 @@ int main()
 		set_boundary_condition( bc, Nx, Ny, ord, Egrp, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 		calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 		scalar_flux_previous = scalar_flux;
-		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp );
+		src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp, keff, chi, nusigf );
 
 		for ( int k = 0; k < ord; k++ )
 		{
@@ -211,12 +217,14 @@ int main()
 
 		}
 
+		calculate_scalarflux( Nx,Ny,ord,Egrp,angular_flux,scalar_flux,wi);
 		res_inner = inner_norm(Nx,Ny,Eiter,scalar_flux,scalar_flux_previous);
 
-		cout << "Inner Iteration: " << Eiiner << " " << "Inner Error: " << " " << res_inner << '\n';
+		cout << "Energy Group: " << Eiter+1 << " " << "Inner Iteration: " << Eiiner << " " << "Inner Error: " << " " << res_inner << '\n';
 
 		if ( res_inner < tol )
 		{
+			cout << '\n' << endl;
 			break;
 		}
 
@@ -228,16 +236,33 @@ int main()
 
 		residual = norm(Nx,Ny,Egrp,scalar_flux,scalar_flux_previous);
 
-		//cout << iter << '\n';
-		cout << "Iteration: " << iter << " " << "Residual: " << " " << residual << '\n';
-
-		if ( residual < tol )
+		if ( calc_mode != "Source" )
 		{
+			keff_previous = keff;
+			keff = kEigCalc(Nx,Ny,Egrp,scalar_flux,scalar_flux_previous,nusigf,keff);
+			cout << "Outer Iteration: " << iter+1 << " " << "Residual: " << " " << residual << '\n';
+			cout << "k-effective:" << keff << " " << " " << "Iteration Difference: " << " " << abs(keff-keff_previous) << '\n';
 			cout << '\n';
-			cout << "Calculation converged with residual " << residual << '\n';
-			cout << '\n';
-			break;
+
+			if ( residual < tol && abs(keff-keff_previous) < tol )
+			{
+				cout << '\n';
+				cout << "Calculation converged with residual " << residual << '\n';
+				cout << '\n';
+				break;
+			}
 		}
+		else
+		{
+			if ( residual < tol && abs(keff-keff_previous) < tol )
+			{
+				cout << '\n';
+				cout << "Calculation converged with residual " << residual << '\n';
+				cout << '\n';
+				break;
+			}
+	}
+
 
 	}
 
