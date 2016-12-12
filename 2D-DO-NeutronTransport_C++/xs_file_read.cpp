@@ -58,7 +58,7 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 		for ( int j = 0; j < E; j++ )
 		{
 			file >> sigs[i][j];
-			std::cout << sigs[i][j] << std::endl;
+			//std::cout << sigs[i][j] << std::endl;
 		}
 	}
 

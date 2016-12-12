@@ -14,6 +14,7 @@ void spatial_discretize( double xL, double xR, int Nx, double dx,
 	                     double yB, double yT, int Ny, double dy, 
 	                     std::vector<double> &x, std::vector<double> &y );
 double norm( int Nx, int Ny, int Egrp, std::vector<std::vector<std::vector<double> > > M1, std::vector<std::vector<std::vector<double> > > M2);
+double inner_norm( int Nx, int Ny, int Egrp, std::vector<std::vector<std::vector<double> > > M1, std::vector<std::vector<std::vector<double> > > M2);
 void set_boundary_condition( int bc, int Nx, int Ny, int ord, int E, int k,
 							 std::vector<double> &mu, std::vector<double> &eta,
 							 std::vector<std::vector<std::vector<std::vector<double> > > > &half_angular_flux_x,

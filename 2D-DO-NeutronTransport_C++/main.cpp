@@ -36,6 +36,7 @@ int main()
 
 	std::vector<double> x; std::vector<double> y; double dx; double dy;
 	double residual;
+	double res_inner;
 
 	dx = ( xR - xL )/(float)Nx;
 	dy = ( yT - yB )/(float)Ny;
@@ -85,16 +86,16 @@ int main()
 	//	}
 	//}
 
-	//for ( int i = 0; i < Egrp; i++ )
-	//{
-	//	for ( int j = 0; j < Nx; j++ )
-	//	{
-	//		for ( int k = 0; k < Ny; k++ )
-	//		{
-	//			cout << j << " " << k << " " << S[j][k][i] << '\n';
-	//		}
-	//	}
-	//}
+	for ( int i = 0; i < Egrp; i++ )
+	{
+		for ( int j = 0; j < Nx; j++ )
+		{
+			for ( int k = 0; k < Ny; k++ )
+			{
+				cout << j << " " << k << " " << S[j][k][i] << '\n';
+			}
+		}
+	}
 
 	cout << '\n';
 	cout << "Beginning transport sweep! " << '\n';
@@ -102,13 +103,16 @@ int main()
 
 	// Transport Sweep
 
-	int itermax = 100000;
+	int iterout = 1000;
+	int iterin = 1000;
 
-	for ( int iter = 0; iter < itermax; iter++ )
+	for ( int iter = 0; iter < iterout; iter++ )
 	{
 		for ( int Eiter = 0; Eiter < Egrp; Eiter++ )
 		{
-		
+
+		for ( int Eiiner = 0; Eiiner < iterin; Eiiner++)
+		{
 		set_boundary_condition( bc, Nx, Ny, ord, Egrp, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 		calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 		scalar_flux_previous = scalar_flux;
@@ -204,11 +208,23 @@ int main()
 					}
 				}
 			}
+
+		}
+
+		res_inner = inner_norm(Nx,Ny,Eiter,scalar_flux,scalar_flux_previous);
+
+		cout << "Inner Iteration: " << Eiiner << " " << "Inner Error: " << " " << res_inner << '\n';
+
+		if ( res_inner < tol )
+		{
+			break;
 		}
 
 		}
 
-		calculate_scalarflux( Ny,Ny,ord,Egrp,angular_flux,scalar_flux,wi );
+		}
+
+		calculate_scalarflux( Nx,Ny,ord,Egrp,angular_flux,scalar_flux,wi );
 
 		residual = norm(Nx,Ny,Egrp,scalar_flux,scalar_flux_previous);
 
