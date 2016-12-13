@@ -77,6 +77,8 @@ int main()
 		cout << "Criticality Calculation" << '\n';
 		cout << "External Source Set to Zero" << '\n';
 		set_extern_src_zero( Nx, Ny, Egrp, S);
+		//source_file_read( S, srcfid, Nx, Ny, calc_mode );
+		//angular_flux_critical_guess(Nx,Ny,ord,Egrp,angular_flux);
 		scalar_flux_critical_guess(Nx,Ny,Egrp,scalar_flux);
 		//calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 		keff = 1;
@@ -135,7 +137,7 @@ int main()
 
 	// Transport Sweep
 
-	int iterout = 1000;
+	int iterout = 100;
 	int iterin = 1000;
 
 	std::vector<std::vector<double> > group_scalar_flux_prev;
@@ -155,10 +157,10 @@ int main()
 		for ( int Eiter = 0; Eiter < Egrp; Eiter++ )
 		{
 			//src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp, keff, chi, nusigf );
-			
+			set_boundary_condition( bc, Nx, Ny, ord, Egrp, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 
-			for ( int Eiiner = 0; Eiiner < iterin; Eiiner++)
-			{
+			//for ( int Eiiner = 0; Eiiner < iterin; Eiiner++)
+			//{
 				//set_boundary_condition( bc, Nx, Ny, ord, Egrp, 0, mu, eta, half_angular_flux_x, half_angular_flux_y );
 				//calculate_scalarflux( Ny, Ny, ord, Egrp, angular_flux, scalar_flux, wi );
 				//if ( Eiiner == 0 )
@@ -184,6 +186,16 @@ int main()
 				//angular_flux_critical_guess(Nx,Ny,ord,Egrp,angular_flux);
 				scalar_flux_previous = scalar_flux;
 				src_extrn_scalarflux( S, Q, scalar_flux, sigs, Nx, Ny, Egrp, keff, chi, nusigf, calc_mode );
+
+				for ( int i = 0; i < Nx; i++ )
+				{
+					for ( int j = 0; j < Ny; j++ )
+					{
+						//cout << Q[i][j][Eiter] << " ";
+					}
+
+					//cout << endl;
+				}
 
 				for ( int k = 0; k < ord; k++ )
 				{
@@ -276,18 +288,45 @@ int main()
 				}
 			}
 
-		}
+		//}
 
 		//calculate_group_scalarflux(Nx,Ny,ord,Eiter,angular_flux,group_scalar_flux,wi);
 		calculate_scalarflux(Nx,Ny,ord,Egrp,angular_flux,scalar_flux,wi);
+
+			for ( int i = 0; i < Egrp; i++ )
+				{
+					for ( int j = 0; j < Nx; j++ )
+					{
+						for ( int k = 0; k < Ny; k++ )
+						{
+						//	cout << scalar_flux[j][k][i] << " ";
+						}
+						//cout << endl;
+					}
+					//cout << endl;
+				}
+
+			for ( int i = 0; i < Egrp; i++ )
+				{
+					for ( int j = 0; j < Nx; j++ )
+					{
+						for ( int k = 0; k < Ny; k++ )
+						{
+					//		cout << scalar_flux_previous[j][k][i] << " ";
+						}
+					//	cout << endl;
+					}
+					//cout << endl;
+				}
+
 		res_inner = inner_norm(Nx,Ny,Eiter,scalar_flux,scalar_flux_previous);
 
-		cout << "Energy Group: " << Eiter+1 << " " << "Inner Iteration: " << Eiiner+1 << " " << "Inner Error: " << " " << res_inner << '\n';
+		//cout << "Energy Group: " << Eiter+1 << " " << "Inner Iteration: " << Eiiner+1 << " " << "Inner Error: " << " " << res_inner << '\n';
 
 		if ( res_inner < tol )
 		{
-			cout << '\n' << endl;
-			break;
+			//cout << '\n' << endl;
+			//break;
 		}
 
 		}
