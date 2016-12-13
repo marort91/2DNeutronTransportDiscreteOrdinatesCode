@@ -10,7 +10,8 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp,
 	                   std::vector<std::vector<std::vector<double> > > &S, std::vector<std::vector<std::vector<double> > > &Q,
 	                   std::vector<std::vector<std::vector<double> > > &sigt, std::vector<std::vector<double> > &sigs,
 	                   std::vector<std::vector<std::vector<double> > > &nusigf,
-	                   std::vector<double> &chi )
+	                   std::vector<double> &chi,
+	                   std::vector<std::vector<double> > &group_scalar_flux )
 
 //*******************************************************************************************************************************
 //
@@ -112,6 +113,13 @@ void array_initialize( int Nx, int Ny, int ord, int Egrp,
 
 		for ( int j = 0; j < Ny; j++ )
 			scalar_flux[i][j].resize(Egrp);
+	}
+
+	group_scalar_flux.resize(Nx);
+
+	for ( int i = 0; i < Nx; i++ )
+	{
+		group_scalar_flux[i].resize(Ny);
 	}
 
 	// Set up source and scattering scalar flux arrays.

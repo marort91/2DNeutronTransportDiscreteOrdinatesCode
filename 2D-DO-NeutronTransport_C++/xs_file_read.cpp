@@ -62,45 +62,58 @@ void xs_file_read( std::vector<std::vector<std::vector<double> > > &sigt, std::s
 		}
 	}
 
-	std:: ifstream chifile(chifid);
+	std::ifstream chifile(chifid);
 
 	for ( int e = 0; e < E; e++ )
 	{
 		chifile >> chi[e];
 	}
 
-	std::string nusigfline;
-	std::ifstream nusigfsrcfile;
+	std::ifstream nusigffile(nusigffid);
 
-	Egrp = 0;
-
-	nusigfsrcfile.open(sigsfid);
-
-	if ( nusigfsrcfile.is_open() )
+	for ( int e = 0; e < E; e++ )
 	{
+		for ( int i = 0; i < Nx; i++ )
+		{
+			for ( int j = 0; j < Ny; j++ )
+			{
+				nusigffile >> nusigf[i][j][e];
+			}
+		}
+	}
+
+	//std::string nusigfline;
+	//std::ifstream nusigfsrcfile;
+
+	//Egrp = 0;
+
+	//nusigfsrcfile.open(sigsfid);
+
+	//if ( nusigfsrcfile.is_open() )
+	//{
 		//getline(nusigfsrcfile,nusigfline);
 
 		//for ( int x = 0; x < Nx; x++ )
-		for ( int x = 0; getline(nusigfsrcfile,nusigfline); x++ )
-		{
+	//	for ( int x = 0; getline(nusigfsrcfile,nusigfline); x++ )
+	//	{
 			//getline(nusigfsrcfile,nusigfline);
 
-			if ( sigtline[0] == 'E')
-			{
-				Egrp = Egrp + 1;
-				getline(nusigfsrcfile,nusigfline);
-				x = 0;
-			}
+	//		if ( nusigfline[0] == 'E')
+	//		{
+	//			Egrp = Egrp + 1;
+	//			getline(nusigfsrcfile,nusigfline);
+	//			x = 0;
+	//		}
 
-			std::istringstream iss(nusigfline);
+	//		std::istringstream iss(nusigfline);
 
-			for ( int y = 0; y < Ny; y++)
-			{
-				std::string sub;
-				iss >> sub;
-				nusigf[x][y][Egrp] = ::atof(sub.c_str());
-			}
-		}
-		nusigfsrcfile.close();
-	}	
+	//		for ( int y = 0; y < Ny; y++)
+	//		{
+	//			std::string sub;
+	//			iss >> sub;
+	//			nusigf[x][y][Egrp] = ::atof(sub.c_str());
+	//		}
+	//	}
+	//	nusigfsrcfile.close();
+	//}	
 }

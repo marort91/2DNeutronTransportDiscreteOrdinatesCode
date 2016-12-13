@@ -1,5 +1,6 @@
 #include <cmath>
 #include <vector>
+#include <iostream>
 
 //*******************************************************************************************************************************
 
@@ -21,6 +22,9 @@ double kEigCalc( int Nx, int Ny, int Egrp, std::vector<std::vector<std::vector<d
 			}
 		}
 	}
+
+	std::cout << "Sum New " << " " << sum_new << '\n';
+	std::cout << "Sum Prev " << " " << sum_prev << '\n';
 
 	return keff*(sum_new/sum_prev);
 }
